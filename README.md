@@ -1,8 +1,8 @@
 # ChatAppWebAPI
 Гармаш Дмитро Олегович, КВ-51мп, 
 
-лабораторна робота №1 
-Розробити серверну частину Web-додатку та протестувати її функціональність.
+лабораторна робота №2 
+розробити функції обміну даними між користувачами Web-додатка, а також адміністрування користувачами у реальному часі.
 
-https://docs.google.com/document/d/18jDg40Q9bj4NjMVnOcwYsvJVbwKd5B5E0_hO2OliXAM/edit?tab=t.0
+https://docs.google.com/document/d/1w7Vj9E7rVNDNFDyf4B4JraX-7V1WL6lDKMxp4oa4GuU/edit?tab=t.0
 
