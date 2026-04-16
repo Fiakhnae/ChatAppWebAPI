@@ -1,8 +1,12 @@
-﻿using Application.Chats;
+﻿using Api.Hubs;
+using Application.Chats;
 using Application.Messages;
+using Application.Users;
+using Domain.Entities;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Api.Controllers;
 
@@ -20,7 +24,7 @@ public record SendMessageRequest(string Message);
 [Route("chats")]
 [Authorize]
 public class ChatController(
-    ISender sender) : ControllerBase
+    ISender sender, IHubContext<UserHub> hub) : ControllerBase
 {
     [HttpPost("{chatId}/members")]
     public async Task<IActionResult> AddMemberAsync(Guid chatId, AddChatMemberRequest request, CancellationToken cancellationToken = default)
@@ -98,6 +102,34 @@ public class ChatController(
         var command = new SendMessageCommand(chatId, request.Message);
 
         await sender.Send(command, cancellationToken);
+
+        var newcommand = new GetProfileQuery();
+
+        var newresponse = await sender.Send(newcommand, cancellationToken);
+
+        var newquery = new GetChatQuery(chatId);
+
+        var chatresponse = await sender.Send(newquery, cancellationToken);
+
+        var query1 = new GetChatQuery(chatId);
+
+        var response1 = await sender.Send(query1, cancellationToken);
+
+        var users = response1.Members.Select(o => o.UserId);
+
+        foreach (var id in users)
+        {
+            if (id != newresponse.Id)
+            {
+                await hub.Clients
+                    .Group($"user-{id}")
+                    .SendAsync("OnGroupAssigned", new
+                    {
+                        GroupName = $"{chatresponse.Name}",
+                        ChatId = chatresponse.Id
+                    });
+            }
+        }
 
         return Created();
     }

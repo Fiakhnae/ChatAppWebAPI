@@ -1,3 +1,4 @@
+using Api.Hubs;
 using Api.Middlewares;
 using Application.Abstractions;
 using Authorization;
@@ -34,6 +35,7 @@ builder.Services.AddScoped<IMessageQueries, MessageQueries>();
 
 builder.Services.AddScoped<IChatAccessService, ChatAccessService>();
 builder.Services.AddScoped<IChatPermissionsProvider, ChatPermissionsProvider>();
+builder.Services.AddSignalR();
 
 
 builder.Services.AddMediator(options =>
@@ -52,8 +54,8 @@ builder.Services
     {
         options.Cookie.Name = "chat-app-auth";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.EventsType = typeof(AppCookieEvents);
@@ -74,7 +76,7 @@ builder.Services.AddCors(opt =>
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseRouting();
 
@@ -92,5 +94,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.MapHub<UserHub>("/hubs/user");
 
 app.Run();
